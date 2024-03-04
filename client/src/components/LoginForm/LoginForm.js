@@ -1,16 +1,18 @@
 // LoginForm.js
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function LoginForm({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
- 
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin(username,password);
+    onLogin(username, password);
     setUsername('');
     setPassword('');
+     
   };
 
   return (

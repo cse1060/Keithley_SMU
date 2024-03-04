@@ -1,21 +1,28 @@
-// Home.js
 import React from 'react';
-import './Home.css'
+import { useNavigate } from 'react-router-dom';
+import './Home.css';
 import Header from '../Header/Header';
-function Home({ username, onLogout }) {
-  return (
-    
-    <div className="home">
-        <button className="logout-button" onClick={onLogout}>Logout</button>
-      <div className="header">
-        <h1>Welcome, {username}!</h1>
-        
-      </div>
+
+function Home({ username }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('loggedIn');
+    localStorage.removeItem('username');
+    navigate('/');
+  };
+
+  return (<>
+    <Header/>
+    <div className="home-page">
+    <button className="connect-button" onClick={() => {  }}>Connect with Keithley</button>
       <div className="content">
+        <p>Welcome to the </p>
         <p>Keithley services</p>
-       
       </div>
+      <button className="logout-button" onClick={handleLogout}>Logout</button>
     </div>
+    </>
   );
 }
 
