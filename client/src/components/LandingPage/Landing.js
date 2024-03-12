@@ -51,6 +51,7 @@ function Landing() {
     
     if (userExists) {
       alert('Username already exists. Please choose a different username.');
+      window.location.reload();
     } else {
       const newUser = { username, password };
       setRegisteredUsers([...registeredUsers, newUser]);

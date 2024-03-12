@@ -8,6 +8,8 @@ import Error from './components/Error/Error';
 import { NavLink } from 'react-router-dom';
 import { BrowserRouter } from 'react-router-dom';
 import Header from './components/Header/Header';
+import Op from './components/Output/Op';
+import Graph from './components/Graph/graph';
 function App() {
   
   return (
@@ -16,7 +18,8 @@ function App() {
 <Routes>
 <Route path="/" element={<Landing/>}/>
 <Route path="/Header" element={<Header/>}/>
-{/* <Route path="/LoginForm" element={<LoginForm/>}/> */}
+ <Route path="/output" element={<Op/>}/>
+ <Route path="/graph" element={<Graph/>}/>
 
 <Route path="/home" element={<Home/>}/>
 
