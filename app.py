@@ -1,9 +1,31 @@
 from flask import Flask, jsonify, request
 import pyvisa
+from flask import Flask, jsonify
+# from pymongo import MongoClient
+import serial
+from experiments.exp1 import exp1
 
 app = Flask(__name__)
 inst = None
 rm = pyvisa.ResourceManager()
+
+client = MongoClient('mongodb://localhost:27017/')
+db = client['my_database']
+
+arduino = None
+
+
+# def create_collection():
+#     latest_collection_number = 0
+#     for collection_name in db.list_collection_names():
+#         if collection_name.startswith('collection_'):
+#             number = int(collection_name.split('_')[1])
+#             if number > latest_collection_number:
+#                 latest_collection_number = number
+#     next_collection_number = latest_collection_number + 1
+
+#     new_collection_name = f'collection_{next_collection_number}'
+#     collection = db[new_collection_name]
 
 
 @app.after_request
@@ -23,6 +45,22 @@ def hello_world():
         })
 
 
+@app.route("/connect_arduino", methods=['GET'])
+def connect_arduino():
+    try:
+        global arduino
+        arduino_port = 'COM5'
+        arduino = serial.Serial(arduino_port, baudrate=9600, timeout=1)
+        return jsonify({
+            'success': True
+        })
+    except Exception as e:
+        return jsonify({
+            'error': e,
+            'success': False
+        })
+
+
 @app.route("/view_devices", methods=['GET'])
 def view_devices():
     if request.method == 'GET':
@@ -38,11 +76,20 @@ def connect_device():
     if request.method == 'POST':
         device = request.json['connect']
         print(device)
+        global inst
         inst = rm.open_resource(device)
         return jsonify({
             'success': True
         })
 
 
+@app.route("experiment1", methods=['POST'])
+def perform_exp1():
+    if request.method == 'POST' and inst != None:
+        data = exp1(inst, arduino, request.json['src_voltage'], request.json['tot_time'],
+                    request.json['iter_num'], request.json['readings'])
+
+
 if __name__ == '__main__':
     app.run(debug=True)
+    # create_collection()
