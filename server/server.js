@@ -12,6 +12,7 @@ app.get('/', async (req, res) => {
     //     name: 'pratham Gupta',
     //     password: '12345678'
     // }
+
     // await addUser(data)
 
     const user = await getUser('pratham@gmail.com')

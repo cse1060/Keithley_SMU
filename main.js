@@ -9,7 +9,7 @@ var mainWindow
 
 function createMainWindow() {
     mainWindow = new BrowserWindow({
-        // autoHideMenuBar: true,
+        autoHideMenuBar: true,
         titleBarStyle: 'hidden',
         title: 'keithley',
         width: 500,

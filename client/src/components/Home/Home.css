@@ -1,0 +1,60 @@
+
+
+
+.home-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    position: relative;
+  }
+  
+ 
+  .home-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+  
+ 
+  .content {
+    margin-top: 20px;
+  }
+  
+ 
+  .logout-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #f8683c;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .logout-button:hover {
+    background-color: #ff5733;
+  }
+  
+  .connect-button {
+    display: block;
+    margin: 20px auto;
+    padding: 15px 30px;
+    font-size: 40px;
+    background-color: #007bff; 
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: underline;
+  }
+  
+  .connect-button:hover {
+    background-color: #0056b3;
+  }
+  

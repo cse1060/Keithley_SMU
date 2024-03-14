@@ -1,4 +1,3 @@
-import './App.css';
 import { Link } from 'react-router-dom';
 import Get_devices from './components/Get_devices';
 
@@ -12,7 +11,7 @@ function App() {
         Hello world!
       </h1>
       <p>The home directory is at </p>
-      <Link to="/signup" >Signup</ Link>
+      <Link to="/login" >Log in</ Link>
       <Get_devices />
       <button onClick={() => {
         ipcRenderer.send('change_size', { height: 500, width: 500 })
@@ -22,4 +21,12 @@ function App() {
   );
 }
 
+{/* <Route path="/home" element={<Home />} /> */ }
+
+// {/* <Route path="*" element={<Error/>}/> */ }
+//     </Routes >
+//     </BrowserRouter >
+//     </>
+//    );
+//  }
 export default App;
