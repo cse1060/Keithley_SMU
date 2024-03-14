@@ -1,15 +1,25 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 const { spawn } = require('child_process');
 
 const url = require('url')
 
 const path = require('path')
 
+var mainWindow
+
 function createMainWindow() {
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
+        // autoHideMenuBar: true,
+        titleBarStyle: 'hidden',
         title: 'keithley',
-        width: 1000,
-        height: 600
+        width: 500,
+        height: 620,
+
+        webPreferences: {
+            contextIsolation: true,
+            nodeIntegration: true,
+            preload: path.join(__dirname, 'electron/preload.js')
+        }
     });
 
     const startUrl = url.format({
@@ -19,7 +29,7 @@ function createMainWindow() {
     });
 
     mainWindow.loadURL('http://localhost:3000/');
-    spawn(`app.py`, { detached: true, shell: true, stdio: 'inherit' });
+    // spawn(`app.py`, { detached: false, shell: true, stdio: 'inherit' });
 
     app.on('window-all-closed', () => {
         if (process.platform !== 'darwin') {
@@ -29,3 +39,7 @@ function createMainWindow() {
 }
 
 app.whenReady().then(createMainWindow);
+
+ipcMain.on('change_size', (event, args) => {
+    mainWindow.setSize(args.width, args.height)
+})
