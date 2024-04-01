@@ -3,14 +3,15 @@ import pyvisa
 from flask import Flask, jsonify
 # from pymongo import MongoClient
 import serial
+import pandas as pd
 from experiments.exp1 import exp1
 
 app = Flask(__name__)
 inst = None
 rm = pyvisa.ResourceManager()
 
-client = MongoClient('mongodb://localhost:27017/')
-db = client['my_database']
+# client = MongoClient('mongodb://localhost:27017/')
+# db = client['my_database']
 
 arduino = None
 
@@ -83,11 +84,32 @@ def connect_device():
         })
 
 
-@app.route("experiment1", methods=['POST'])
+@app.route("/experiment1", methods=['POST'])
 def perform_exp1():
     if request.method == 'POST' and inst != None:
         data = exp1(inst, arduino, request.json['src_voltage'], request.json['tot_time'],
                     request.json['iter_num'], request.json['readings'])
+        data.to_csv('result_exp1.csv')
+
+
+@app.route("/loginToken",  methods=['GET', 'POST'])
+def setup_loginToken():
+    if request.method == 'POST':
+        file = open('./user_configs/login_token.txt', 'w')
+        file.write(request.json['token'])
+        file.close()
+
+        return jsonify({
+            'message': "Login Token updated"
+        })
+    elif request.method == 'GET':
+        file = open('./user_configs/login_token.txt', 'r')
+        token = file.read()
+        file.close()
+
+        return jsonify({
+            'token': token
+        })
 
 
 if __name__ == '__main__':

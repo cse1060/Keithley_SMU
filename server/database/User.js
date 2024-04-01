@@ -3,19 +3,20 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10
 
 async function addUser(data) {
-    // const username = data.email.split('@')[0]
+    const username = data.email.split('@')[0]
     // const hash = await bcrypt.hash(data.password, saltRounds);
 
-    // const res = await db.collection('users').doc(data.email).set({
-    //     email: data.email,
-    //     name: data.name,
-    //     username: username,
-    //     password: hash
-    // });
-    const user = await auth.createUser({
+    await db.collection('users').doc(data.email).set({
         email: data.email,
+        displayName: data.name,
+        username: username,
+    });
+    await auth.createUser({
+        email: data.email,
+        name: data.name,
         password: data.password,
         emailVerified: false,
+        displayName: username,
         // photoURL:
         // phoneNumber:
         // displayName:
