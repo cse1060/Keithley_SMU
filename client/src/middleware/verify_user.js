@@ -7,12 +7,12 @@ export default async function verify_user() {
     // console.log(path);
     if (token === '') {
         if (path !== '/login' || path !== 'signup') {
-            return 0
-        } else return 1
+            return { success: 0, uid: "" }
+        } else return { success: 1 }
     } else {
         const res = await axios.post('http://localhost:8000/signin_token', { token: token })
         console.log(res.data);
-        if (res.data.success) return 2
-        else return 0
+        if (res.data.success) return { success: 1, uid: res.data.uid }
+        else return { success: 0 }
     }
 }

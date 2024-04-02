@@ -60,8 +60,8 @@ app.post("/signin", async (req, res) => {
 })
 app.post("/signin_token", async (req, res) => {
     try {
-        await login_token(req.body.token)
-        res.json({ success: true })
+        const uid = await login_token(req.body.token)
+        res.json({ success: true, uid: uid })
     } catch (error) {
         res.json({ success: false })
     }

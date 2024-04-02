@@ -1,8 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const os = require('os');
 
-contextBridge.exposeInMainWorld('electron', {
-    homeDir: () => os.homedir(),
+contextBridge.exposeInMainWorld('session', {
+    uid: (callback) => ipcRenderer.on('UserUid', (callback))
 })
 
 contextBridge.exposeInMainWorld('ipcRenderer', {

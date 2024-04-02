@@ -9,8 +9,8 @@ var mainWindow
 
 function createMainWindow() {
     mainWindow = new BrowserWindow({
-        autoHideMenuBar: true,
-        titleBarStyle: 'hidden',
+        // autoHideMenuBar: true,
+        // titleBarStyle: 'hidden',
         title: 'keithley',
         width: 500,
         height: 620,
@@ -40,6 +40,19 @@ function createMainWindow() {
 
 app.whenReady().then(createMainWindow);
 
+var login = false
+var uid = ""
+
 ipcMain.on('change_size', (event, args) => {
     mainWindow.setSize(args.width, args.height)
+})
+
+ipcMain.on('userLogin', (event, args) => {
+    login = args.login
+    uid = args.uid
+    console.log(login, uid, "****");
+})
+
+ipcMain.on('isUserLogin', (event, args) => {
+    mainWindow.webContents.send('UserUid', { 'login': login, 'uid': uid })
 })

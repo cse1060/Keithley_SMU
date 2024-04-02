@@ -112,6 +112,18 @@ def setup_loginToken():
         })
 
 
+@app.route("/deleteLoginToken", methods=['GET'])
+def deleteLoginToken():
+    if request.method == 'GET':
+        file = open('./user_configs/login_token.txt', 'w')
+        file.write("")
+        file.close()
+
+    return jsonify({
+        'message': "user logged out successfully"
+    })
+
+
 if __name__ == '__main__':
     app.run(debug=True)
     # create_collection()

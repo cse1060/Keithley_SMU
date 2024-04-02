@@ -24,7 +24,8 @@ async function login_email(email, password) {
 
 async function login_token(token) {
     const user = await signInWithCustomToken(auth, token)
-    console.log(user);
+    // console.log(user.user.uid);
+    return user.user.uid
 }
 
 
