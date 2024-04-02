@@ -13,7 +13,7 @@ export default function Signup() {
     });
 
     async function handleSignup(event) {
-        const req = await axios.post("http://127.0.0.1:5000/", user);
+        const req = await axios.post("http://localhost:8000/signup", user);
         console.log(req);
     }
 

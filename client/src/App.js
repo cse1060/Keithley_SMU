@@ -1,9 +1,23 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Get_devices from './components/Get_devices';
+import verify_user from './middleware/verify_user';
+import { useEffect } from 'react';
 
 function App() {
 
   const ipcRenderer = window.ipcRenderer;
+
+  const navigate = useNavigate();
+
+  async function verify_token() {
+    const res = await verify_user();
+    console.log(res);
+    if (res === 0) navigate("/login")
+  }
+
+  useEffect(() => {
+    verify_token()
+  }, [])
 
   return (
     <div className="App">
