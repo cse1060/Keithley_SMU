@@ -3,10 +3,12 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import Plot from 'react-plotly.js';
 import Header from '../Header/Header';
 import './graph.css'
+import DownloadCSV from '../DownloadCsv/page';
 const graph = () => {
 
   return (
     <>
+      <DownloadCSV />
       <Plot
         data={[
           {
