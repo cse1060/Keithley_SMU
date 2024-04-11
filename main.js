@@ -56,3 +56,19 @@ ipcMain.on('userLogin', (event, args) => {
 ipcMain.on('isUserLogin', (event, args) => {
     mainWindow.webContents.send('UserUid', { 'login': login, 'uid': uid })
 })
+ipcMain.on('new_win', (event, args) => {
+    const newWindow = new BrowserWindow({
+        // autoHideMenuBar: true,
+        // titleBarStyle: 'hidden',
+        title: 'keithley',
+        width: 500,
+        height: 620,
+
+        webPreferences: {
+            contextIsolation: true,
+            nodeIntegration: true,
+            preload: path.join(__dirname, 'electron/preload.js')
+        }
+    });
+    newWindow.loadURL("http://localhost:3000/graph")
+})

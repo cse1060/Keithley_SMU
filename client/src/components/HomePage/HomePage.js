@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import verify_user from '../../middleware/verify_user';
 import backgroundImage from '../bg11.jpeg';
-import { Link } from 'react-router-dom';
-import { axios } from 'axios';
+import axios from 'axios';
+import { Context } from '../../context';
+import { io } from "socket.io-client";
+import Navbar_func from '../NavbarPage/Navbar';
 
 const Container = styled.div`
   display: flex;
@@ -75,6 +79,7 @@ const HomePage = () => {
     const res = await axios.get("http://127.0.0.1:5000/view_devices");
     const dev = res.data;
     if (res.data.success) {
+      console.log(res.data.devices);
       setDevices(res.data.devices)
     }
   }
@@ -82,22 +87,105 @@ const HomePage = () => {
   const options2 = ['Instrument 1', 'Instrument 2', 'Instrument 3'];
   const options3 = ['Port 1', 'Port 2', 'Port 3'];
 
+  const ipcRenderer = window.ipcRenderer;
+  const [user, setUser] = useContext(Context)
+
+  const [loading, setLoading] = useState(true)
+  const [socket, setSocket] = useState()
+  const session = window.session
+  const [loginSuccess, setLoginSuccess] = useState(false);
+
+  const navigate = useNavigate();
+
+  async function verify_token() {
+    const res = await verify_user();
+    console.log(res);
+    if (res.success === 0) {
+      // console.log("***************");
+      setLoading(false)
+      setLoginSuccess(true)
+      return;
+    }
+    setUser(res.uid)
+    ipcRenderer.send('userLogin', { login: true, uid: res.uid })
+
+    connect_socket()
+
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    ipcRenderer.send('isUserLogin', {})
+  }, [])
+
+  useEffect(() => {
+    session.uid((event, args) => {
+      // console.log(args);
+      if (!args.login) {
+        verify_token()
+      } else {
+        setUser(args.uid)
+        setLoading(false)
+        setLoginSuccess(true)
+      }
+    })
+  }, [session])
+
+  async function connect_socket() {
+    console.log("abc");
+    const sock = io("localhost:5000/", {
+      transports: ["websocket"],
+      cors: {
+        origin: "http://localhost:3000/",
+      },
+    });
+    setSocket(sock)
+  }
+
+  useEffect(() => {
+    if (!socket) return
+    socket.on("test", (data) => {
+      console.log(data);
+    });
+  }, [socket]);
+
+  if (loading) {
+    return (
+      <>
+        loading
+      </>
+    )
+  }
+
+  if (!loading && !loginSuccess) {
+    return (
+      <>
+        <h1>Login First</h1>
+        <a href='/login'>Login</a>
+      </>
+    )
+  }
+
   return (
-    <Container>
-      <TransparentBox>
-        <InputContainer>
-          <Select>
-            <option value="" disabled selected>
-              Select Experiment
-            </option>
-            {options.map((option) => (
-              <option key={option} value={option}>
-                {option}
+
+    <>
+      <Navbar_func></Navbar_func>
+
+      <Container>
+        <TransparentBox>
+          <InputContainer>
+            <Select>
+              <option value="" disabled selected>
+                Select Experiment
               </option>
-            ))}
-          </Select>
-        </InputContainer>
-        {/* <InputContainer>
+              {options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Select>
+          </InputContainer>
+          {/* <InputContainer>
           <Select>
             <option value="" disabled selected>
               Select Instrument
@@ -109,31 +197,52 @@ const HomePage = () => {
             ))}
           </Select>
         </InputContainer> */}
-        <InputContainer>
+          {/* <InputContainer onClick={viewDevices} defaultValue={"View Available Devices"}>
           <Select>
-            <option onClick={viewDevices}>
+            <option >
               View Available Devices
             </option>
             {
               devices.map((device, idx) => {
                 return (
-                  <p onClick={async () => {
+                  <option onClick={async () => {
                     const res = await axios.post("http://127.0.0.1:5000/connect_device", { connect: device });
                     if (res.data.success) {
                       setConnectedDevice(device)
                     }
                   }}>
                     {device}
-                  </p>
+                  </option>
                 )
               })
             }
           </Select>
-        </InputContainer>
-        <Link to="/experiment">
-          <Button>Continue</Button></Link>
-      </TransparentBox>
-    </Container>
+        </InputContainer> */}
+          <p className='text-white' onClick={viewDevices}>View Available devices</p>
+          {
+            devices.map((device, idx) => {
+              return (
+                <option onClick={async () => {
+                  const res = await axios.post("http://127.0.0.1:5000/connect_device", { connect: device });
+                  if (res.data.success) {
+                    setConnectedDevice(device)
+                  }
+                }}>
+                  {device}
+                </option>
+              )
+            })
+          }
+
+          <p className='text-white' onClick={() => {
+            ipcRenderer.send("new_win", { message: "create" })
+          }}>abc</p>
+
+          <Link to="/experiment">
+            <Button>Continue</Button></Link>
+        </TransparentBox>
+      </Container>
+    </>
   );
 };
 

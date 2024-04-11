@@ -1,4 +1,4 @@
-// Landing.js
+// Navbar_func.js
 import React, { useState, useEffect } from 'react';
 import LoginForm from '../LoginForm/LoginForm';
 import RegisterForm from '../RegisterForm/RegisterForm';
@@ -9,7 +9,7 @@ import { FaForward } from "react-icons/fa";
 import { FaTachographDigital } from "react-icons/fa6";
 import { AiFillExperiment } from "react-icons/ai";
 import { GiSewingMachine } from "react-icons/gi";
-function Landing() {
+function Navbar_func() {
   // const [loggedIn, setLoggedIn] = useState(false);
   // const [registeredUsers, setRegisteredUsers] = useState([]);
   // const [username, setUsername] = useState('');
@@ -52,7 +52,7 @@ function Landing() {
 
   // const handleRegister = (username, password) => {
   //   const userExists = registeredUsers.some((user) => user.username === username);
-    
+
   //   if (userExists) {
   //     alert('Username already exists. Please choose a different username.');
   //     window.location.reload();
@@ -64,33 +64,33 @@ function Landing() {
   //     window.location.reload();
   //   }
   // };
-  
+
 
   return (
-  <div>
-     
-     <Navbar fluid rounded className="bg-black text-red-800 text-lg">
-      <NavbarBrand className='text-red-600 mx-4'>
-      <FaForward title="Run Experiment" type = "button" size={33} className="ml-4 dropdown-toggle"/>
-      
-      {/* <GiSewingMachine type = "button" size={33} className = "mx-4"/>
+    <div>
+
+      <Navbar fluid rounded className="bg-black text-red-800 text-lg">
+        <NavbarBrand className='text-red-600 mx-4'>
+          <FaForward title="Run Experiment" type="button" size={33} className="ml-4 dropdown-toggle" />
+
+          {/* <GiSewingMachine type = "button" size={33} className = "mx-4"/>
       <AiFillExperiment type = "button" size={33} className="ml-4"/> 
       <FaTachographDigital type = "button" size= {33} className="mx-4"/>  */}
-      </NavbarBrand>
-      <NavbarToggle />
-      <NavbarCollapse>
-        <NavbarLink href="#" active>
-          Home
-        </NavbarLink>
-        <NavbarLink href="/login" active>
-          Login
-        </NavbarLink>
-        <NavbarLink href="#" active>Logout</NavbarLink>
-      </NavbarCollapse>
-    </Navbar>
-    
-  </div>
+        </NavbarBrand>
+        <NavbarToggle />
+        <NavbarCollapse>
+          <NavbarLink href="#" active>
+            Home
+          </NavbarLink>
+          <NavbarLink href="/login" active>
+            Login
+          </NavbarLink>
+          <NavbarLink href="#" active>Logout</NavbarLink>
+        </NavbarCollapse>
+      </Navbar>
+
+    </div>
   );
 }
 
-export default Landing;
+export default Navbar_func;
