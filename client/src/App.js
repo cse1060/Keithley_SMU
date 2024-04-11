@@ -7,9 +7,10 @@ import Graph from './components/Graph/graph';
 import Home from './components/Home/Home';
 import { Context } from "./context.js";
 import { useState } from 'react';
+import ExperimentForm from './components/Experiment.jsx';
+import HomePage from './components/HomePage/HomePage.js';
 
 function App() {
-
   const [user, setUser] = useState("");
   return (
     <Context.Provider value={[user, setUser]}>
@@ -17,12 +18,14 @@ function App() {
         <Header />
         <Routes>
           {/* <Route path="/home" element={<Landing />} /> */}
-          <Route path='/' element={<Home />} />
+          <Route path ="/" element = {<HomePage/>}/>
+          <Route path='/home' element={<Home />} />
           <Route path='/signup' element={<Signup />} />
           <Route path='/login' element={<Login />} />
           <Route path="/Header" element={<Header />} />
           <Route path="/output" element={<Op />} />
           <Route path="/graph" element={<Graph />} />
+          <Route path="/experiment" element = {<ExperimentForm/>}/>
         </Routes>
       </BrowserRouter>
     </Context.Provider>
