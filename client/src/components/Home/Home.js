@@ -6,14 +6,17 @@ import verify_user from '../../middleware/verify_user';
 import { useEffect } from 'react';
 import { Context } from '../../context';
 
+import { io } from "socket.io-client";
+
 function Home({ username }) {
 
   const ipcRenderer = window.ipcRenderer;
   const [user, setUser] = useContext(Context)
 
   const [loading, setLoading] = useState(true)
-
+  const [socket, setSocket] = useState()
   const session = window.session
+  const [loginSuccess, setLoginSuccess] = useState(false);
 
   const navigate = useNavigate();
 
@@ -21,11 +24,15 @@ function Home({ username }) {
     const res = await verify_user();
     console.log(res);
     if (res.success === 0) {
-      navigate("/login");
+      // console.log("***************");
+      setLoading(false)
       return;
     }
     setUser(res.uid)
     ipcRenderer.send('userLogin', { login: true, uid: res.uid })
+
+    connect_socket()
+
     setLoading(false)
   }
 
@@ -41,14 +48,42 @@ function Home({ username }) {
       } else {
         setUser(args.uid)
         setLoading(false)
+        setLoginSuccess(true)
       }
     })
   }, [session])
+
+  async function connect_socket() {
+    console.log("abc");
+    const sock = io("localhost:5000/", {
+      transports: ["websocket"],
+      cors: {
+        origin: "http://localhost:3000/",
+      },
+    });
+    setSocket(sock)
+  }
+
+  useEffect(() => {
+    if (!socket) return
+    socket.on("test", (data) => {
+      console.log(data);
+    });
+  }, [socket]);
 
   if (loading) {
     return (
       <>
         loading
+      </>
+    )
+  }
+
+  if (!loading && !loginSuccess) {
+    return (
+      <>
+        <h1>Login First</h1>
+        <a href='/login'>Login</a>
       </>
     )
   }
@@ -83,6 +118,8 @@ function Home({ username }) {
         }}>a</button>
         {user}
         <a href='/output'>Output</a>
+        <br></br>
+        <a href='/graph'>graph</a>
       </div >
 
     </>

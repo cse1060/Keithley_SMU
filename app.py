@@ -5,6 +5,10 @@ from flask import Flask, jsonify
 import serial
 import pandas as pd
 from experiments.exp1 import exp1
+import base64
+import io
+import time
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 inst = None
@@ -27,6 +31,7 @@ arduino = None
 
 #     new_collection_name = f'collection_{next_collection_number}'
 #     collection = db[new_collection_name]
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 
 @app.after_request
@@ -39,8 +44,9 @@ def set_headers(response):
 
 @app.route("/", methods=['GET', 'POST'])
 def hello_world():
-    if request.method == 'POST':
-        print(request.json['username'])
+    if request.method == 'GET':
+        print("Hello")
+        emit("test", {"connect": True}, namespace="/", broadcast=True)
         return jsonify({
             'success': True
         })
@@ -91,19 +97,27 @@ def perform_exp1():
                     request.json['iter_num'], request.json['readings'])
         data.to_csv('result_exp1.csv')
 
+        csv_content = data.to_csv(index=False).encode()
+        base64_content = base64.b64encode(csv_content).decode()
+
+        return jsonify({
+            'csv': base64_content
+        })
+
 
 @app.route("/loginToken",  methods=['GET', 'POST'])
 def setup_loginToken():
     if request.method == 'POST':
-        file = open('./user_configs/login_token.txt', 'w')
+        file = open('../user_configs/login_token.txt', 'w')
         file.write(request.json['token'])
         file.close()
 
+        time.sleep(0.5)
         return jsonify({
             'message': "Login Token updated"
         })
     elif request.method == 'GET':
-        file = open('./user_configs/login_token.txt', 'r')
+        file = open('../user_configs/login_token.txt', 'r')
         token = file.read()
         file.close()
 
@@ -115,15 +129,23 @@ def setup_loginToken():
 @app.route("/deleteLoginToken", methods=['GET'])
 def deleteLoginToken():
     if request.method == 'GET':
-        file = open('./user_configs/login_token.txt', 'w')
+        file = open('../user_configs/login_token.txt', 'w')
         file.write("")
         file.close()
+        time.sleep(0.5)
 
     return jsonify({
         'message': "user logged out successfully"
     })
 
 
+@socketio.on("connect")
+def connected():
+    """event listener when client connects to the server"""
+    print(request.sid)
+    print("client has connected")
+
+
 if __name__ == '__main__':
     app.run(debug=True)
-    # create_collection()
+    socketio.run(app, debug=True, port=5000)
