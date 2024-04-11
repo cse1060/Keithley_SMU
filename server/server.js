@@ -2,6 +2,7 @@ const express = require('express');
 var bodyParser = require('body-parser');
 const { addUser, getUser, getToken } = require('./database/User');
 const { login_email, login_token } = require('./login')
+const { db } = require("./database/firebase")
 var cors = require('cors')
 
 const app = express();
@@ -60,12 +61,30 @@ app.post("/signin", async (req, res) => {
 })
 app.post("/signin_token", async (req, res) => {
     try {
+        console.log(req.body);
         const uid = await login_token(req.body.token)
         res.json({ success: true, uid: uid })
     } catch (error) {
         res.json({ success: false })
     }
 })
+
+app.post("/csv_file", async (req, res) => {
+    try {
+        console.log(req.body);
+        const data = req.body;
+        await db.collection('users').doc(data.uid).set({
+            csv: data.csv
+        }, { merge: true })
+        res.json({ success: true, message: "CSV File ADDED" })
+    } catch (error) {
+        res.json({ success: false, 'error': error })
+    }
+})
+
+// app.get("/csv_file" , async(req , res) => {
+
+// })
 
 app.listen(PORT, () => {
     console.log(`Server is listening at port :${PORT}`);
