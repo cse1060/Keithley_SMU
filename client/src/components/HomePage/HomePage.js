@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import backgroundImage from '../bg11.jpeg';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { axios } from 'axios';
 
 const Container = styled.div`
   display: flex;
@@ -71,11 +72,11 @@ const HomePage = () => {
   const [devices, setDevices] = useState([])
   const [connectedDevice, setConnectedDevice] = useState(null)
   const viewDevices = async () => {
-      const res = await axios.get("http://127.0.0.1:5000/view_devices");
-      const dev = res.data;
-      if (res.data.success) {
-          setDevices(res.data.devices)
-      }
+    const res = await axios.get("http://127.0.0.1:5000/view_devices");
+    const dev = res.data;
+    if (res.data.success) {
+      setDevices(res.data.devices)
+    }
   }
   const options = ['Experiment 1', 'Experiment 2', 'Experiment 3'];
   const options2 = ['Instrument 1', 'Instrument 2', 'Instrument 3'];
@@ -110,27 +111,27 @@ const HomePage = () => {
         </InputContainer> */}
         <InputContainer>
           <Select>
-          <option onClick={viewDevices}>
-                View Available Devices
-          </option>
+            <option onClick={viewDevices}>
+              View Available Devices
+            </option>
             {
-                devices.map((device, idx) => {
-                    return (
-                        <p onClick={async () => {
-                            const res = await axios.post("http://127.0.0.1:5000/connect_device", { connect: device });
-                            if (res.data.success) {
-                                setConnectedDevice(device)
-                            }
-                        }}>
-                            {device}
-                        </p>
-                    )
-                })
+              devices.map((device, idx) => {
+                return (
+                  <p onClick={async () => {
+                    const res = await axios.post("http://127.0.0.1:5000/connect_device", { connect: device });
+                    if (res.data.success) {
+                      setConnectedDevice(device)
+                    }
+                  }}>
+                    {device}
+                  </p>
+                )
+              })
             }
           </Select>
         </InputContainer>
-        <Link to ="/experiment">
-        <Button>Continue</Button></Link>
+        <Link to="/experiment">
+          <Button>Continue</Button></Link>
       </TransparentBox>
     </Container>
   );
