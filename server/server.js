@@ -77,12 +77,27 @@ app.post("/add_experiment", async (req, res) => {
         // await db.collection('users').doc(data.uid).set({
         //     csv: data.csv
         // }, { merge: true })
+        var finalResults = []
+
+        data.results.map((arr, idx) => {
+            {
+                finalResults.push({
+                    A1: arr[0],
+                    T1: arr[1],
+                    A2: arr[2],
+                    T2: arr[3],
+                    A3: arr[4],
+                })
+            }
+        })
 
         var userDocRef = db.collection('users').doc(data.uid);
         userDocRef.update({
             experiments: FieldValue.arrayUnion({
                 date: getCurrentDateAsString(),
-                experiment_details: {},
+                experiment_details: data.expDetails,
+                expName: data.expName,
+                results: finalResults,
                 csv: data.csv,
             })
         })
