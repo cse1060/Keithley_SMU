@@ -39,7 +39,7 @@ This project establishes a connection between a computer, a Keithley instrument,
     ```bash
     cd Keithley_SMU/server
     ```
-- Install dependencies;
+- Install dependencies:
     ```bash
     npm install
     ```
@@ -59,7 +59,7 @@ This project establishes a connection between a computer, a Keithley instrument,
     ```
     - On Linux/MacOS:
     ```bash
-    source venv/bin/activate
+    source myenv/bin/activate
     ```
 -  Install the required python packages
     ```bash
