@@ -99,7 +99,7 @@ def exp1(inst, arduino, src_voltage, tot_duration, iter_num, readings, emit):
 
         # inst.write("defbuffer1.clear")
         # inst.write("delay(0.1)")
-        emit("exp_data", data.to_json(orient="split"),
+        emit("expData", {'expData': data.to_dict('split')},
              namespace="/", broadcast=True)
 
     inst.write("smu.source.level = 0")

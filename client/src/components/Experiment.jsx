@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import img from "./bg15.jpeg";
 import img2 from "./bg11.jpeg"; // Import a new background image
@@ -10,6 +10,7 @@ import { ReactTabulator } from 'react-tabulator';
 import { parse } from 'papaparse';
 import { Table } from "flowbite-react";
 import DownloadCSV from './DownloadCsv/page';
+import GetUser from '../middleware/getUser';
 
 
 const Container = styled.div`
@@ -160,12 +161,24 @@ const ExperimentForm = () => {
   const [expName, setExpName] = useState({});
   const [csvData, setCsvData] = useState();
   const [graphData, setGraphData] = useState();
+  const [results, setResults] = useState();
   const [formValues, setFormValues] = useState({
     srcVoltage: '',
     totalTime: '',
     iterationNumber: '',
     readings: '',
   });
+
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    console.log(user);
+    if (!user) {
+      return
+    }
+    setLoading(false)
+  }, [user])
 
   const handleButtonClick = async () => {
     setIsMoved(!isMoved);
@@ -209,33 +222,18 @@ const ExperimentForm = () => {
         y.push(parseFloat(obj[4]))
       })
 
-      console.log(parsedCsvData);
-      console.log(x);
-      console.log(y);
+      // console.log(parsedCsvData);
+      // console.log(x);
+      // console.log(y);
       setCsvData(parsedCsvData);
       setGraphData({
         x: x,
         y: y
       })
 
-      // const response2 = await axios.post('/curve_fitting', JSON.stringify({
-      //   data: {
-      //     'Smu1_Time(1)(1)': parsedCsvData.relativeTime,
-      //     'Smu1_I(1)(1)': parsedCsvData.reading
-      //   }
-      // }));
-      // console.log(response2.data);
-      // const base64CsvData2 = response2.data.csv;
-      // const csvContent2 = atob(base64CsvData2);
-      // const csvRows2 = csvContent2.split('\n');
-      // const parsedCsvData2 = csvRows2.map(row => {
-      //   const [x, y] = row.split(',');
-      //   return {
-      //     x: parseInt(x),
-      //     y: parseInt(y)
-      //   };
-      // });
-      // setGraphData(parsedCsvData2);
+      setResults(response.data.results.data)
+
+      const sendToServer = await axios.post("http://localhost:8000/add_experiment", { expName: expName, expDetails: formValues, uid: user, csv: response.data.csv, results: response.data.results.data })
 
 
     } catch (error) {
@@ -267,7 +265,14 @@ const ExperimentForm = () => {
     { title: 'Relative Time', field: 'relativeTime', align: 'left' },
     { title: 'Current Reading', field: 'reading', align: 'left' },
   ];
-
+  if (loading) {
+    return (
+      <>
+        <GetUser setUser={setUser} />
+        <>Loading</>
+      </>
+    )
+  }
   return (
     <>
       <a href='/graph'>graph</a>
@@ -343,6 +348,39 @@ const ExperimentForm = () => {
                         <Table.Cell>{data.relativeTime}</Table.Cell>
                         <Table.Cell>
                           {data.reading}
+                        </Table.Cell>
+                      </Table.Row>
+                    )
+                  })
+                }
+              </Table.Body>
+            </Table>
+          </div>
+        }
+        {
+          results &&
+          <div className='overflow-auto h-[300px]'>
+            <Table>
+              <Table.Head>
+                <Table.HeadCell>A1</Table.HeadCell>
+                <Table.HeadCell>T1</Table.HeadCell>
+                <Table.HeadCell>A2</Table.HeadCell>
+                <Table.HeadCell>T2</Table.HeadCell>
+                <Table.HeadCell>A3</Table.HeadCell>
+              </Table.Head>
+              <Table.Body className="divide-y">
+                {
+                  results.map((res_arr, idx) => {
+                    return (
+                      <Table.Row className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                        <Table.Cell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                          {res_arr[0]}
+                        </Table.Cell>
+                        <Table.Cell>{res_arr[1]}</Table.Cell>
+                        <Table.Cell>{res_arr[2]}</Table.Cell>
+                        <Table.Cell>{res_arr[3]}</Table.Cell>
+                        <Table.Cell>
+                          {res_arr[4]}
                         </Table.Cell>
                       </Table.Row>
                     )

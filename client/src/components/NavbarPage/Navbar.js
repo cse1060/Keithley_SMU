@@ -102,7 +102,7 @@ function Navbar_func() {
         </NavbarBrand>
         <NavbarToggle />
         <NavbarCollapse>
-          <NavbarLink href="#" active>
+          <NavbarLink href="/" active>
             Home
           </NavbarLink>
           <NavbarLink href="/login" active>

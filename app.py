@@ -1,3 +1,4 @@
+import numpy as np
 from flask import Flask, jsonify, request
 import pyvisa
 from flask import Flask, jsonify
@@ -8,6 +9,7 @@ from experiments.exp1 import exp1
 import base64
 import io
 import time
+import plotly.graph_objs as go
 from flask_socketio import SocketIO, emit
 from experiments.curve_fitting import exp_sum_model
 from experiments.curve_fitting import curve_fitting
@@ -101,18 +103,31 @@ def perform_exp1():
     #     csv_content = data.to_csv(index=False).encode()
     #     base64_content = base64.b64encode(csv_content).decode()
 
+    #     results = curve_fitting(data)
+
     #     return jsonify({
     #         'csv': base64_content,
-    #         "data": data.to_dict('split')
+    #         "data": data.to_dict('split'),
+    #         'results' : results
     #     })
     if request.method == 'POST':
         df = pd.read_csv('test.csv')
         csv_content = df.to_csv(index=False).encode()
         base64_content = base64.b64encode(csv_content).decode()
 
+        results = {'data': [[1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [
+            1, 2, 3, 4, 5], [1, 2, 3, 4, 5], [1, 2, 3, 4, 5]]}
+
+        # fig = go.Figure()
+        # fig.add_scatter(x=np.random.rand(100), y=np.random.rand(100), mode='markers',
+        #                 marker={'size': 30, 'color': np.random.rand(100), 'opacity': 0.6,
+        #                 'colorscale': 'Viridis'})
+        # fig.show(renderer='browser')
+
         return jsonify({
             'csv': base64_content,
-            "data": df.to_dict('split')
+            "data": df.to_dict('split'),
+            'results': results
         })
 
 
@@ -171,17 +186,20 @@ def connected():
     print("client has connected")
 
 
-# @app.route("/trial", methods=['POST'])
-# def trial():
-#     if request.method == 'POST':
-#         trial_func(emit)
-#         return jsonify({"Success": True})
+@app.route("/trial", methods=['POST'])
+def trial():
+    if request.method == 'POST':
+        trial_func(emit)
+        return jsonify({"Success": True})
 
 
-# def trial_func(emit):
-#     for i in range(0, 10):
-#         emit("trial", {"connect": i}, namespace="/", broadcast=True)
-#         time.sleep(2)
+def trial_func(emit):
+    df = pd.read_csv('test.csv')
+    for i in range(1, 5):
+        data = df.iloc[:10*i]
+        emit("expData", {"expData": data.to_dict('split')},
+             namespace="/", broadcast=True)
+        time.sleep(5)
 
 
 if __name__ == '__main__':
