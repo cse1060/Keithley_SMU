@@ -9,7 +9,8 @@ import base64
 import io
 import time
 from flask_socketio import SocketIO, emit
-
+from experiments.curve_fitting import exp_sum_model
+from experiments.curve_fitting import curve_fitting
 app = Flask(__name__)
 inst = None
 rm = pyvisa.ResourceManager()
@@ -138,12 +139,26 @@ def deleteLoginToken():
         'message': "user logged out successfully"
     })
 
+@app.route("/curve_fitting", methods = ['POST'])
+def showCurveFitting():
+    if request.method == 'POST':
+        data = request.json['data']
+        file = curve_fitting(data)
+        file.to_csv('parameters.csv')
+        csv_content = file.to_csv(index=False).encode()
+        base64_content = base64.b64encode(csv_content).decode()
+
+        return jsonify({
+            'csv': base64_content
+        })
+
 
 @socketio.on("connect")
 def connected():
     """event listener when client connects to the server"""
     print(request.sid)
     print("client has connected")
+
 
 
 if __name__ == '__main__':

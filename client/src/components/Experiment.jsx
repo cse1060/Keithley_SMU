@@ -1,17 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import img from "./bg15.jpeg";
-import { Link } from "react-router-dom";
+import img2 from "./bg11.jpeg"; // Import a new background image
+import { motion } from "framer-motion";
+import Navbar_func from './NavbarPage/Navbar';
+import axios from 'axios';
+import Plot from 'react-plotly.js';
+import { ReactTabulator } from 'react-tabulator';
+import { parse } from 'papaparse';
+
+
 const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   height: 90vh;
-  // background-color:rgba(0, 0, 0, 0.85);
-  background-image: url(${img});
+  background-image: url(${props => props.backgroundImage});
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+`;
+
+const ComponentWrapper = styled(motion.div)`
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 3rem;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: width 0.3s ease-in-out;
 `;
 
 const TransparentBox = styled.div`
@@ -39,11 +57,11 @@ const Input = styled.input`
     margin: 0;
   }
   &::-webkit-inner-spin-button {
-    background-color: rgba(0, 0, 0, 0.7); /* Darker background color */
-    color: white; /* White text color */
-    border-radius: 4px; /* Squared corners */
-    width: 1.5rem; /* Increased width */
-    height: 1.5rem; /* Increased height */
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    border-radius: 4px;
+    width: 1.5rem;
+    height: 1.5rem;
     margin-right: 0.5rem;
   }
   &::-webkit-outer-spin-button {
@@ -58,45 +76,254 @@ const Input = styled.input`
     color: black;
   }
 `;
-
+const DownloadButton = styled.a`
+  padding: 0.8rem 1.2rem;
+  border-radius: 4px;
+  border: none;
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  margin-top: 1rem;
+  &:hover {
+    background-color: #45a049;
+  }
+`;
+const DownloadWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+`;
 const Button = styled.button`
   padding: 0.8rem 1.2rem;
   border-radius: 4px;
   border: none;
-  background-color: #8b0000; /* Red background color */
+  background-color: #8b0000;
   color: white;
   font-weight: bold;
-  cursor: pointer;
+  cursor: ${props => (props.disabled ? 'not-allowed' : 'pointer')};
   align-self: center;
   &:hover {
-    background-color: #cc0000; /* Darker shade on hover */
+    background-color: ${props => (props.disabled ? '#8b0000' : '#cc0000')};
   }
+`;
+const ExperimentProgressWrapper = styled.div`
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 1rem;
+  color: white;
+`;
+const DataTableWrapper = styled.div`
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+`;
 
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+const THead = styled.thead``;
+
+const TBody = styled.tbody``;
+
+const TR = styled.tr``;
+
+const TH = styled.th`
+  padding: 0.5rem;
+  text-align: left;
+`;
+
+const TD = styled.td`
+  padding: 0.5rem;
 `;
 
 const ExperimentForm = () => {
+  const [isMoved, setIsMoved] = useState(false);
+  const [backgroundImage, setBackgroundImage] = useState(img);
+  // const [csvData, setCsvData] = useState('');
+  const [isExperimentInProgress, setIsExperimentInProgress] = useState(false);
+  const [expName, setExpName] = useState({});
+  const [csvData, setCsvData] = useState([]);
+  const [graphData, setGraphData] = useState({});
+  const [formValues, setFormValues] = useState({
+    srcVoltage: '',
+    totalTime: '',
+    iterationNumber: '',
+    readings: '',
+  });
+
+  const handleButtonClick = async() => {
+    setIsMoved(!isMoved);
+    setBackgroundImage(img2); // Change the background image
+    setIsExperimentInProgress(true);
+    try{
+      const response = await axios.post('/experiment1', JSON.stringify({
+        src_voltage: formValues.srcVoltage,
+        tot_time: formValues.totalTime,
+        iter_num: formValues.iterationNumber,
+        readings: formValues.readings,
+      }));
+      console.log(response.data);
+      const base64CsvData = response.data.csv;
+      const csvContent = atob(base64CsvData);
+      const csvRows = csvContent.split('\n');
+      const parsedCsvData = csvRows.map(row => {
+      const [id, light, readingNo, relativeTime, reading] = row.split(',');
+        return {
+          id: parseInt(id),
+          light: parseInt(light),
+          readingNo: parseInt(readingNo),
+          relativeTime: parseFloat(relativeTime),
+          reading: parseFloat(reading),
+        };
+      });
+      setCsvData(parsedCsvData);
+      const response2 = await axios.post('/curve_fitting', JSON.stringify({
+        data:{
+          'Smu1_Time(1)(1)' : parsedCsvData.relativeTime,
+          'Smu1_I(1)(1)' : parsedCsvData.reading
+        }
+      }));
+      console.log(response2.data);
+      const base64CsvData2 = response2.data.csv;
+      const csvContent2 = atob(base64CsvData2);
+      const csvRows2 = csvContent2.split('\n');
+      const parsedCsvData2 = csvRows2.map(row => {
+      const [x,y] = row.split(',');
+        return {
+          x:parseInt(x),
+          y:parseInt(y)
+        };
+      });
+      setGraphData(parsedCsvData2);
+      
+
+    }catch(error) {
+      console.error('Error submitting form:', error);
+      setIsExperimentInProgress(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+  if (e.target.name === 'expName') {
+    setExpName(e.target.value);
+  } else {
+    setFormValues({ ...formValues, [e.target.name]: e.target.value });
+  }
+  };
+
+  const variants = {
+    initial: { x: 0 }, // Start at its initial position (left: 0)
+    moved: { x: '+170%', y: '-10%', width: '300px' }, // Move to the left of the screen (off-screen) and reduce width slightly
+  };
+  const downloadCsv = () => {
+    const csvBlob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const csvUrl = URL.createObjectURL(csvBlob);
+    const link = document.createElement('a');
+    link.href = csvUrl;
+    link.download = `${expName}.csv`;
+    link.click();
+    URL.revokeObjectURL(csvUrl);
+  };
+  const downloadVariants = {
+    initial: { x: 0 },
+    visible: { x: '+170%' , y:'40%'},
+  };
+  const columns = [
+    { title: 'ID', field: 'id', align: 'left' },
+    { title: 'Light', field: 'light', align: 'left' },
+    { title: 'Reading No.', field: 'readingNo', align: 'left' },
+    { title: 'Relative Time', field: 'relativeTime', align: 'left' },
+    { title: 'Current Reading', field: 'reading', align: 'left' },
+  ];
+
   return (
-    <Container>
-      <TransparentBox>
-        <Input className='mt-12'
-          type="number"
-          placeholder="Experiment Duration (in minutes)"
-          name = "duration"
-        />
+    <>
+      <Navbar_func />
+      <Container backgroundImage={backgroundImage}>
+        <ComponentWrapper animate={isMoved ? 'moved' : 'initial'} variants={variants} transition={{ duration: 0.5 }}>
         <Input
-          type="number"
-          placeholder="Measurement Interval (in minutes)"
-          name = "interval"
-        />
-        <Input  
-          type="text"
-          placeholder = "Name of the Experiment"
-          name = "name"
+            type="text"
+            placeholder="Name of the Experiment"
+            name="expName"
+            value={expName}
+            onChange={handleInputChange}
           />
-        <Link to="/graph">
-        <Button>Run Experiment</Button></Link>
-      </TransparentBox>
-    </Container>
+        <Input
+            className="mt-12"
+            type="number"
+            step="0.01"
+            placeholder="Source Voltage (in Volts)"
+            name="srcVoltage"
+            value={formValues.srcVoltage}
+            onChange={handleInputChange}
+          />
+          <Input
+            type="number"
+            placeholder="Total Time (in seconds)"
+            name="totalTime"
+            value={formValues.totalTime}
+            onChange={handleInputChange}
+          />
+          <Input
+            type="number"
+            placeholder="Number of Iterations"
+            name="iterationNumber"
+            value={formValues.iterationNumber}
+            onChange={handleInputChange}
+          />
+          <Input
+            type="number"
+            placeholder="Number of Readings"
+            name="readings"
+            value={formValues.readings}
+            onChange={handleInputChange}
+          />
+          <Button onClick={handleButtonClick} disabled={isMoved}>
+            Run Experiment
+          </Button>
+          {isMoved  && (
+            <DownloadButton href="#" onClick={downloadCsv}>
+              Download CSV
+            </DownloadButton>
+          )}
+        </ComponentWrapper>
+        {csvData && 
+        <ReactTabulator
+          data={csvData}
+          columns={columns}
+          options={{
+            layout: 'fitColumns',
+            height: '400px',
+          }}
+        />}
+        {/* {csvData && 
+        <Plot
+          data={[
+            {
+              x: graphData.x,
+              y: graphData.y,
+              mode: 'lines',
+              type: 'scatter',
+            },
+          ]}
+          layout={{ title: 'Real-time Graph' }}
+        />} */}
+      </Container>
+    </>
   );
 };
 

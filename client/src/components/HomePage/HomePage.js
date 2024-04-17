@@ -3,10 +3,13 @@ import styled from 'styled-components';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import verify_user from '../../middleware/verify_user';
 import backgroundImage from '../bg11.jpeg';
-import axios from 'axios';
+// import axios from 'axios';
+import {motion} from "framer-motion";
 import { Context } from '../../context';
 import { io } from "socket.io-client";
 import Navbar_func from '../NavbarPage/Navbar';
+import Start_page from "../Start_page"
+import axios from 'axios';
 
 const Container = styled.div`
   display: flex;
@@ -28,6 +31,16 @@ const TransparentBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+`;
+const ComponentWrapper = styled(motion.div)`
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 3rem;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: width 0.3s ease-in-out; 
 `;
 
 const InputContainer = styled.div`
@@ -73,6 +86,23 @@ const Button = styled.button`
 `;
 
 const HomePage = () => {
+  const [isMoved, setIsMoved] = useState(false);
+
+  // const handleButtonClick = () => {
+  //   setIsMoved(!isMoved);
+  //   ipcRenderer.send("new_win", { message: "create" });
+    
+  // };
+
+  const variants = {
+    initial: {
+      x: 0, // Start at its initial position (left: 0)
+    },
+    moved: {
+      x: '-70%', // Move to the left of the screen (off-screen)
+      width: '400px', // Reduce width slightly
+    },
+  };
   const [devices, setDevices] = useState([])
   const [connectedDevice, setConnectedDevice] = useState(null)
   const viewDevices = async () => {
@@ -87,7 +117,7 @@ const HomePage = () => {
   const options2 = ['Instrument 1', 'Instrument 2', 'Instrument 3'];
   const options3 = ['Port 1', 'Port 2', 'Port 3'];
 
-  const ipcRenderer = window.ipcRenderer;
+  // const ipcRenderer = window.ipcRenderer;
   const [user, setUser] = useContext(Context)
 
   const [loading, setLoading] = useState(true)
@@ -107,29 +137,29 @@ const HomePage = () => {
       return;
     }
     setUser(res.uid)
-    ipcRenderer.send('userLogin', { login: true, uid: res.uid })
+    // ipcRenderer.send('userLogin', { login: true, uid: res.uid })
 
     connect_socket()
 
     setLoading(false)
   }
 
-  useEffect(() => {
-    ipcRenderer.send('isUserLogin', {})
-  }, [])
+  // useEffect(() => {
+  //   ipcRenderer.send('isUserLogin', {})
+  // }, [])
 
-  useEffect(() => {
-    session.uid((event, args) => {
-      // console.log(args);
-      if (!args.login) {
-        verify_token()
-      } else {
-        setUser(args.uid)
-        setLoading(false)
-        setLoginSuccess(true)
-      }
-    })
-  }, [session])
+  // useEffect(() => {
+  //   session.uid((event, args) => {
+  //     // console.log(args);
+  //     if (!args.login) {
+  //       verify_token()
+  //     } else {
+  //       setUser(args.uid)
+  //       setLoading(false)
+  //       setLoginSuccess(true)
+  //     }
+  //   })
+  // }, [session])
 
   async function connect_socket() {
     console.log("abc");
@@ -149,22 +179,21 @@ const HomePage = () => {
     });
   }, [socket]);
 
-  if (loading) {
-    return (
-      <>
-        loading
-      </>
-    )
-  }
+  // if (loading) {
+  //   return (
+  //     <>
+  //       loading
+  //     </>
+  //   )
+  // }
 
-  if (!loading && !loginSuccess) {
-    return (
-      <>
-        <h1>Login First</h1>
-        <a href='/login'>Login</a>
-      </>
-    )
-  }
+  // if (!loading && !loginSuccess) {
+  //   return (
+  //     <>
+  //       <Start_page/>
+  //     </>
+  //   )
+  // }
 
   return (
 
@@ -218,25 +247,27 @@ const HomePage = () => {
             }
           </Select>
         </InputContainer> */}
-          <p className='text-white' onClick={viewDevices}>View Available devices</p>
-          {
-            devices.map((device, idx) => {
-              return (
-                <option onClick={async () => {
-                  const res = await axios.post("http://127.0.0.1:5000/connect_device", { connect: device });
-                  if (res.data.success) {
-                    setConnectedDevice(device)
-                  }
-                }}>
-                  {device}
-                </option>
-              )
-            })
-          }
+          <InputContainer className='text-white' onClick={viewDevices}>View Available devices</InputContainer>
+          <Select>
+            {
+              devices.map((device, idx) => {
+                return (
+                  <option onClick={async () => {
+                    const res = await axios.post("http://127.0.0.1:5000/connect_device", { connect: device });
+                    if (res.data.success) {
+                      setConnectedDevice(device)
+                    }
+                  }}>
+                    {device}
+                  </option>
+                )
+              })
+            }
+          </Select>
 
-          <p className='text-white' onClick={() => {
+          {/* <p className='text-white' onClick={() => {
             ipcRenderer.send("new_win", { message: "create" })
-          }}>abc</p>
+          }}>abc</p> */}
 
           <Link to="/experiment">
             <Button>Continue</Button></Link>

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-
+// import axios from 'Axios';
 const Container = styled.div`
   display: flex;
   justify-content: center;
@@ -24,13 +25,21 @@ const DownloadButton = styled.button`
 `;
 
 const DownloadCSV = () => {
+    
     const [data, setData] = useState([
         ['Name', 'Age', 'City'],
         ['John', 30, 'New York'],
         ['Jane', 25, 'Los Angeles'],
         ['Bob', 40, 'Chicago'],
     ]);
-
+    useEffect(async()=>{
+      const res = await axios.get("http://127.0.0.1:5000/experiment1");
+      const dev = res.data;
+      if (res.data.success) {
+        console.log(res.data.devices);
+        setData(res.data.devices)
+    }
+    })
     const handleDownload = () => {
         const csvData = data.map((row) => row.join(',')).join('\n');
         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
@@ -44,9 +53,9 @@ const DownloadCSV = () => {
     };
     return (
         <>
-            <Container>
+            {/* <Container> */}
                 <DownloadButton onClick={handleDownload}>Download CSV</DownloadButton>
-            </Container>
+            {/* </Container> */}
         </>
     )
 }

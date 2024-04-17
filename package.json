@@ -13,6 +13,8 @@
   "dependencies": {
     "antd": "^5.16.0",
     "electron": "^28.1.4",
-    "firebase": "^10.8.0"
+    "firebase": "^10.8.0",
+    "papaparse": "^5.4.1",
+    "react-papaparse": "^4.4.0"
   }
 }
