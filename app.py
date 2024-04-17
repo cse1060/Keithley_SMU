@@ -94,7 +94,7 @@ def connect_device():
 def perform_exp1():
     if request.method == 'POST' and inst != None:
         data = exp1(inst, arduino, request.json['src_voltage'], request.json['tot_time'],
-                    request.json['iter_num'], request.json['readings'])
+                    request.json['iter_num'], request.json['readings'], emit)
         data.to_csv('result_exp1.csv')
 
         csv_content = data.to_csv(index=False).encode()
@@ -144,6 +144,19 @@ def connected():
     """event listener when client connects to the server"""
     print(request.sid)
     print("client has connected")
+
+
+# @app.route("/trial", methods=['POST'])
+# def trial():
+#     if request.method == 'POST':
+#         trial_func(emit)
+#         return jsonify({"Success": True})
+
+
+# def trial_func(emit):
+#     for i in range(0, 10):
+#         emit("trial", {"connect": i}, namespace="/", broadcast=True)
+#         time.sleep(2)
 
 
 if __name__ == '__main__':

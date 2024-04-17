@@ -103,10 +103,10 @@ const HomePage = () => {
     if (res.success === 0) {
       // console.log("***************");
       setLoading(false)
-      setLoginSuccess(true)
       return;
     }
     setUser(res.uid)
+    setLoginSuccess(true)
     ipcRenderer.send('userLogin', { login: true, uid: res.uid })
 
     connect_socket()

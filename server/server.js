@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 const { addUser, getUser, getToken } = require('./database/User');
 const { login_email, login_token } = require('./login')
 const { db } = require("./database/firebase")
+const { FieldValue } = require("firebase-admin/firestore")
 var cors = require('cors')
 
 const app = express();
@@ -69,16 +70,40 @@ app.post("/signin_token", async (req, res) => {
     }
 })
 
-app.post("/csv_file", async (req, res) => {
+app.post("/add_experiment", async (req, res) => {
     try {
         console.log(req.body);
         const data = req.body;
-        await db.collection('users').doc(data.uid).set({
-            csv: data.csv
-        }, { merge: true })
+        // await db.collection('users').doc(data.uid).set({
+        //     csv: data.csv
+        // }, { merge: true })
+
+        var userDocRef = db.collection('users').doc(data.uid);
+        userDocRef.update({
+            experiments: FieldValue.arrayUnion({
+                date: getCurrentDateAsString(),
+                experiment_details: {},
+                csv: data.csv,
+            })
+        })
+
         res.json({ success: true, message: "CSV File ADDED" })
     } catch (error) {
+        console.log(error);
         res.json({ success: false, 'error': error })
+    }
+})
+
+app.post("/profile_details", async (req, res) => {
+    const uid = req.body.uid;
+    const docRef = db.collection('users').doc(uid)
+    const doc = await docRef.get()
+    if (!doc.exists) {
+        console.log('No such document!');
+        res.json({ "success": false, "message": "Error!!" })
+    } else {
+        console.log('Document data:', doc.data());
+        res.json({ "success": true, "doc": doc.data() })
     }
 })
 
@@ -88,4 +113,12 @@ app.post("/csv_file", async (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`Server is listening at port :${PORT}`);
-}); 
+});
+
+function getCurrentDateAsString() {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}

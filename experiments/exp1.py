@@ -7,7 +7,7 @@ def send_command(arduino, command):  # To send commands to the arduino
     time.sleep(0.1)
 
 
-def exp1(inst, arduino, src_voltage, tot_duration, iter_num, readings):
+def exp1(inst, arduino, src_voltage, tot_duration, iter_num, readings, emit):
     data = pd.DataFrame(data=None, columns=[
                         'id', 'light', 'reading no', 'relative time', 'reading'])
 
@@ -99,6 +99,8 @@ def exp1(inst, arduino, src_voltage, tot_duration, iter_num, readings):
 
         # inst.write("defbuffer1.clear")
         # inst.write("delay(0.1)")
+        emit("exp_data", data.to_json(orient="split"),
+             namespace="/", broadcast=True)
 
     inst.write("smu.source.level = 0")
     # inst.write("delay(2)")

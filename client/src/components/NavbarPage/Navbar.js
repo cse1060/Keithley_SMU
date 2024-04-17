@@ -9,6 +9,9 @@ import { FaForward } from "react-icons/fa";
 import { FaTachographDigital } from "react-icons/fa6";
 import { AiFillExperiment } from "react-icons/ai";
 import { GiSewingMachine } from "react-icons/gi";
+
+import axios from 'axios';
+
 function Navbar_func() {
   // const [loggedIn, setLoggedIn] = useState(false);
   // const [registeredUsers, setRegisteredUsers] = useState([]);
@@ -65,6 +68,26 @@ function Navbar_func() {
   //   }
   // };
 
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    window.ipcRenderer.send('userLogin', { login: false, uid: "" })
+    const res = await axios.get("http://127.0.0.1:5000/deleteLoginToken")
+    navigate('/login');
+  };
+
+  const session = window.session
+  const [user, setUser] = useState("")
+
+  useEffect(() => {
+    window.ipcRenderer.send('isUserLogin', {})
+  })
+
+  useEffect(() => {
+    session.uid((event, args) => {
+      setUser(args.uid)
+    })
+  }, [session])
 
   return (
     <div>
@@ -85,7 +108,7 @@ function Navbar_func() {
           <NavbarLink href="/login" active>
             Login
           </NavbarLink>
-          <NavbarLink href="#" active>Logout</NavbarLink>
+          <NavbarLink href="#" active onClick={handleLogout}>Logout</NavbarLink>
         </NavbarCollapse>
       </Navbar>
 

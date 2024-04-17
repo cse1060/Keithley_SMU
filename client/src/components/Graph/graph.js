@@ -1,13 +1,41 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, NavLink } from 'react-router-dom';
 import Plot from 'react-plotly.js';
 import Header from '../Header/Header';
 import './graph.css'
 import DownloadCSV from '../DownloadCsv/page';
-const graph = () => {
+import { io } from "socket.io-client";
+const Graph = () => {
+
+  const [socket, setSocket] = useState(null)
+
+  useEffect(() => {
+    if (socket === null) {
+      connect_socket()
+    }
+  }, [])
+
+  async function connect_socket() {
+    console.log("abc");
+    const sock = io("localhost:5000/", {
+      transports: ["websocket"],
+      cors: {
+        origin: "http://localhost:3000/",
+      },
+    });
+    setSocket(sock)
+  }
+
+  useEffect(() => {
+    if (socket === null) return
+    socket.on("trial", (data) => {
+      console.log(data);
+    });
+  }, [socket]);
 
   return (
     <>
+      <a href='/profile'>A</a>
       <DownloadCSV />
       <Plot
         data={[
@@ -26,4 +54,4 @@ const graph = () => {
   )
 }
 
-export default graph
+export default Graph

@@ -3,13 +3,14 @@ import Signup from './components/Signup';
 import Login from './components/Login';
 import Header from './components/Header/Header';
 import Op from './components/Output/Op';
-import Graph from './components/Graph/graph';
+import Graph from './components/Graph/graph.js';
 import Home from './components/Home/Home';
 import { Context } from "./context.js";
 import { useState } from 'react';
 import ExperimentForm from './components/Experiment.jsx';
 import HomePage from './components/HomePage/HomePage.js';
 import Navbar_func from './components/NavbarPage/Navbar.js';
+import Profile from './components/Profile.jsx';
 
 function App() {
   const [user, setUser] = useState("");
@@ -27,6 +28,7 @@ function App() {
           <Route path="/output" element={<Op />} />
           <Route path="/graph" element={<Graph />} />
           <Route path="/experiment" element={<ExperimentForm />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>
     </Context.Provider>

@@ -81,20 +81,20 @@ const ExperimentForm = () => {
         <Input className='mt-12'
           type="number"
           placeholder="Experiment Duration (in minutes)"
-          name = "duration"
+          name="duration"
         />
         <Input
           type="number"
           placeholder="Measurement Interval (in minutes)"
-          name = "interval"
+          name="interval"
         />
-        <Input  
+        <Input
           type="text"
-          placeholder = "Name of the Experiment"
-          name = "name"
-          />
+          placeholder="Name of the Experiment"
+          name="name"
+        />
         <Link to="/graph">
-        <Button>Run Experiment</Button></Link>
+          <Button>Run Experiment</Button></Link>
       </TransparentBox>
     </Container>
   );
