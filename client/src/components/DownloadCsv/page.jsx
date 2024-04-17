@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { CSVLink } from "react-csv";
 
+// import axios from 'Axios';
 const Container = styled.div`
   display: flex;
   justify-content: center;
@@ -23,32 +26,17 @@ const DownloadButton = styled.button`
   }
 `;
 
-const DownloadCSV = () => {
-    const [data, setData] = useState([
-        ['Name', 'Age', 'City'],
-        ['John', 30, 'New York'],
-        ['Jane', 25, 'Los Angeles'],
-        ['Bob', 40, 'Chicago'],
-    ]);
+const DownloadCSV = (props) => {
 
-    const handleDownload = () => {
-        const csvData = data.map((row) => row.join(',')).join('\n');
-        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'data.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-    return (
-        <>
-            <Container>
-                <DownloadButton onClick={handleDownload}>Download CSV</DownloadButton>
-            </Container>
-        </>
-    )
+  return (
+    <>
+      <DownloadButton
+        onClick={() => {
+          console.log("CSV Download");
+        }}
+      ><CSVLink data={props.data} >Download CSV</CSVLink></DownloadButton>
+    </>
+  )
 }
 
 export default DownloadCSV

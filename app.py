@@ -9,7 +9,8 @@ import base64
 import io
 import time
 from flask_socketio import SocketIO, emit
-
+from experiments.curve_fitting import exp_sum_model
+from experiments.curve_fitting import curve_fitting
 app = Flask(__name__)
 inst = None
 rm = pyvisa.ResourceManager()
@@ -92,16 +93,26 @@ def connect_device():
 
 @app.route("/experiment1", methods=['POST'])
 def perform_exp1():
-    if request.method == 'POST' and inst != None:
-        data = exp1(inst, arduino, request.json['src_voltage'], request.json['tot_time'],
-                    request.json['iter_num'], request.json['readings'], emit)
-        data.to_csv('result_exp1.csv')
+    # if request.method == 'POST' and inst != None:
+    #     data = exp1(inst, arduino, request.json['src_voltage'], request.json['tot_time'],
+    #                 request.json['iter_num'], request.json['readings'], emit)
+    #     data.to_csv('result_exp1.csv')
 
-        csv_content = data.to_csv(index=False).encode()
+    #     csv_content = data.to_csv(index=False).encode()
+    #     base64_content = base64.b64encode(csv_content).decode()
+
+    #     return jsonify({
+    #         'csv': base64_content,
+    #         "data": data.to_dict('split')
+    #     })
+    if request.method == 'POST':
+        df = pd.read_csv('test.csv')
+        csv_content = df.to_csv(index=False).encode()
         base64_content = base64.b64encode(csv_content).decode()
 
         return jsonify({
-            'csv': base64_content
+            'csv': base64_content,
+            "data": df.to_dict('split')
         })
 
 
@@ -137,6 +148,20 @@ def deleteLoginToken():
     return jsonify({
         'message': "user logged out successfully"
     })
+
+
+@app.route("/curve_fitting", methods=['POST'])
+def showCurveFitting():
+    if request.method == 'POST':
+        data = request.json['data']
+        file = curve_fitting(data)
+        file.to_csv('parameters.csv')
+        csv_content = file.to_csv(index=False).encode()
+        base64_content = base64.b64encode(csv_content).decode()
+
+        return jsonify({
+            'csv': base64_content
+        })
 
 
 @socketio.on("connect")

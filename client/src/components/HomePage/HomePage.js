@@ -7,6 +7,9 @@ import axios from 'axios';
 import { Context } from '../../context';
 import { io } from "socket.io-client";
 import Navbar_func from '../NavbarPage/Navbar';
+import Start_page from "../Start_page"
+import { motion } from 'framer-motion';
+// import axios from 'axios';
 
 const Container = styled.div`
   display: flex;
@@ -28,6 +31,16 @@ const TransparentBox = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+`;
+const ComponentWrapper = styled(motion.div)`
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 3rem;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: width 0.3s ease-in-out; 
 `;
 
 const InputContainer = styled.div`
@@ -218,25 +231,27 @@ const HomePage = () => {
             }
           </Select>
         </InputContainer> */}
-          <p className='text-white' onClick={viewDevices}>View Available devices</p>
-          {
-            devices.map((device, idx) => {
-              return (
-                <option onClick={async () => {
-                  const res = await axios.post("http://127.0.0.1:5000/connect_device", { connect: device });
-                  if (res.data.success) {
-                    setConnectedDevice(device)
-                  }
-                }}>
-                  {device}
-                </option>
-              )
-            })
-          }
+          <InputContainer className='text-white' onClick={viewDevices}>View Available devices</InputContainer>
+          <Select>
+            {
+              devices.map((device, idx) => {
+                return (
+                  <option onClick={async () => {
+                    const res = await axios.post("http://127.0.0.1:5000/connect_device", { connect: device });
+                    if (res.data.success) {
+                      setConnectedDevice(device)
+                    }
+                  }}>
+                    {device}
+                  </option>
+                )
+              })
+            }
+          </Select>
 
-          <p className='text-white' onClick={() => {
+          {/* <p className='text-white' onClick={() => {
             ipcRenderer.send("new_win", { message: "create" })
-          }}>abc</p>
+          }}>abc</p> */}
 
           <Link to="/experiment">
             <Button>Continue</Button></Link>
