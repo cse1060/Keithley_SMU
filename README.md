@@ -38,7 +38,7 @@ git clone https://github.com/cse1060/Keithley_SMU.git
 #### Node.js server
 - Navigate to the Node.js server directory
     ```bash
-    cd Keithley_SMU
+    cd Keithley_SMU/server
     ```
 - Install dependencies;
     ```bash
@@ -80,7 +80,7 @@ git clone https://github.com/cse1060/Keithley_SMU.git
     ```bash
     npm install
     ```
-- Start the React application:
+- Start the Electron App:
     ```bash
     npm run start
     ```
