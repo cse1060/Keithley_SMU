@@ -31,9 +31,9 @@ This project establishes a connection between a computer, a Keithley instrument,
 
 ### Installation
 ####  Clone this repository
-    ```bash
-    git clone https://github.com/cse1060/Keithley_SMU.git
-    ```
+```bash
+git clone https://github.com/cse1060/Keithley_SMU.git
+```
 #### Node.js server
 - Navigate to the Node.js server directory
     ```bash
