@@ -29,96 +29,120 @@ def fit_interval(data, initial_guess):
     params.add('A3', value=initial_guess[4])
 
     # Perform the fit using lmfit
-    minner = Minimizer(exp_sum_model, params, fcn_args=(data['x'], data['y']))
+    minner = Minimizer(exp_sum_model, params, fcn_args=(data['relative time'], data['reading']))
     result = minner.minimize()
     return result.params
 
-
 def curve_fitting(data):
-    # Extract columns
-    t_data = data['id']
-    x_data = data['relative time']
-    y_data = data['reading']
+    t_data = data['id'].values
+    x_data = data['relative time'].values
+    y_data = data['reading'].values
     r_data = data['reading no']
+    d_data = data['id'].unique()
     num_intervals = t_data.max()
-    g = r_data.max()
-
+    g = len(t_data)
     # Pre-process data: compute initial guesses for each interval
     initial_guesses = []
-    for i in range(num_intervals):
-        k = t_data.count(i)
+    for i in d_data:
+        k = data[data['id'] == i]['id'].count()
+        interval_start = 0
         for j in range(g):
-            if t_data[j] == i:
+            if t_data[j]==i:
                 interval_start = j
                 break
+        
         interval_end = interval_start + k
-        interval_data = data[(x_data >= interval_start)
-                             & (x_data < interval_end)]
-        x_initial = interval_data['Smu1_Time(1)(1)'][:10].values
-        y_initial = interval_data['Smu1_I(1)(1)'][:10].values
+        interval_data = data.iloc[interval_start : interval_end]
+        x_initial = interval_data['relative time'][:5].values
+        y_initial = interval_data['reading'][:5].values
+    
         A1_initial_guess = y_initial.max()
         t1_initial_guess = x_initial.mean()
         A2_initial_guess = y_initial.min()
         t2_initial_guess = x_initial.mean()
         A3_initial_guess = y_initial.mean()
-        initial_guesses.append((A1_initial_guess, t1_initial_guess,
-                               A2_initial_guess, t2_initial_guess, A3_initial_guess))
+        initial_guesses.append((A1_initial_guess, t1_initial_guess, A2_initial_guess, t2_initial_guess, A3_initial_guess))
+
 
     # Fit intervals sequentially
     parameters_list = []
-    for i in range(num_intervals):
-        k = t_data.count(i)
+    for i in range(1,num_intervals+1):
+        k = np.count_nonzero(t_data == i)
         for j in range(g):
-            if t_data[j] == i:
+            if t_data[j]==i:
                 interval_start = j
                 break
         interval_end = interval_start + k
-        interval_data = data[(x_data >= interval_start)
-                             & (x_data < interval_end)]
-        params = fit_interval(interval_data, initial_guesses[i])
+        interval_data = data.iloc[interval_start : interval_end]
+        params = fit_interval(interval_data, initial_guesses[i-1])
+
         parameters_list.append(params)
 
+    # print(parameters_list['t1'])
+
     # Plot original data
-    trace_data = go.Scatter(x=x_data, y=y_data, mode='markers',
-                            marker=dict(color='red'), name='Data')
+    trace_data = go.Scatter(x=x_data, y=y_data, mode='markers', marker=dict(color='red'), name='Data')
 
     # Initialize list to store Plotly traces for fitted curves
     fitted_curve_traces = []
 
     # Generate fitted curves for each interval
     for i, parameters in enumerate(parameters_list):
-        k = t_data.count(i)
+        k = np.count_nonzero(t_data == i)
         for j in range(g):
-            if t_data[j] == i:
+            if t_data[j]==i+1:
                 interval_start = j
                 break
         interval_end = interval_start + k
-        interval_data = data[(x_data >= interval_start)
-                             & (x_data < interval_end)]
-        interval_curve_x = np.linspace(interval_start, interval_end, 100)
+        interval_data = data.iloc[interval_start : interval_end]
+        interval_curve_x = interval_data['relative time'].values  
         interval_curve_y = exp_sum_model(parameters, interval_curve_x)
+        
         # Create Plotly trace for the fitted curve
-        fitted_curve_trace = go.Scatter(
-            x=interval_curve_x, y=interval_curve_y, mode='lines', name=f'Interval {i+1} Fit')
+        fitted_curve_trace = go.Scatter(x=interval_curve_x, y=interval_curve_y, mode='lines', name=f'Interval {i+1} Fit')
         fitted_curve_traces.append(fitted_curve_trace)
 
-    # Plotting with Plotly
-    layout = go.Layout(title='Current vs Time', xaxis=dict(title='Time'), yaxis=dict(title='Current'),
-                       xaxis_type='linear', yaxis_type='linear',  # Set axis type to linear
-                       hovermode='closest',  # Show hover closest data point
-                       # Set plot background color to transparent
-                       plot_bgcolor='rgba(0,0,0,0)',
-                       # Set paper background color to transparent
-                       paper_bgcolor='rgba(0,0,0,0)'
-                       )
-    # Convert list of dictionaries into DataFrame
-    for params in parameters_list:
-        params['t1'] *= -1
-        params['t2'] *= -1
+    layout = go.Layout(
+        title='Current vs Time',
+        xaxis=dict(
+            title='Time',
+            titlefont=dict(
+                family='Arial, sans-serif',
+                size=18,
+                color='black'
+            ),
+            tickfont=dict(
+                family='Arial, sans-serif',
+                size=14,
+                color='black'
+            ),
+        ),
+        yaxis=dict(
+            title='Current',
+            titlefont=dict(
+                family='Arial, sans-serif',
+                size=18,
+                color='black'
+            ),
+            tickfont=dict(
+                family='Arial, sans-serif',
+                size=14,
+                color='black'
+            ),
+        ),
+        xaxis_type='linear', 
+        yaxis_type='linear', 
+        hovermode='closest', 
+        plot_bgcolor='rgba(255, 255, 255, 0.9)', 
+        paper_bgcolor='rgba(0,0,0,0)'
+    )
 
     parameters_df = pd.DataFrame(parameters_list)
 
-    fig = go.Figure(data=[trace_data, *fitted_curve_traces], layout=layout)
+    # Save DataFrame to CSV file
+    parameters_df.to_csv('parameters.csv', index=False)
+
+    fig = go.Figure(data=[trace_data,*fitted_curve_traces], layout=layout)
     fig.show(renderer='browser')
 
     return parameters_df.to_dict('split')
