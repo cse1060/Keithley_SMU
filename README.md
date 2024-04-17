@@ -27,7 +27,6 @@ This project establishes a connection between a computer, a Keithley instrument,
 - [Python (version 3.8 or later)](https://www.python.org/downloads/) with pip package manager installed
 - [Node.js and npm (or yarn)](https://nodejs.org/en)
 - [Firebase project with Realtime Database and Cloud Functions enabled](https://firebase.google.com/docs/database)
-- Keithley instrument drivers or libraries(specific to your model)
 - [Arduino IDE](https://www.arduino.cc/)
 
 ### Installation
