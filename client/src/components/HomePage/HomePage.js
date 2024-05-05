@@ -231,8 +231,11 @@ const HomePage = () => {
             }
           </Select>
         </InputContainer> */}
-          <InputContainer className='text-white' onClick={viewDevices}>View Available devices</InputContainer>
+          <InputContainer className='text-white' onClick={viewDevices}>
           <Select>
+            <option value = "" disabled selected>
+              View Available Devices
+            </option>
             {
               devices.map((device, idx) => {
                 return (
@@ -248,6 +251,7 @@ const HomePage = () => {
               })
             }
           </Select>
+          </InputContainer>
 
           {/* <p className='text-white' onClick={() => {
             ipcRenderer.send("new_win", { message: "create" })

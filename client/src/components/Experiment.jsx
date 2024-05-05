@@ -131,6 +131,34 @@ const DataTableWrapper = styled.div`
   overflow-y: auto;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 `;
+const DataSectionWrapper = styled.div`
+  margin-left: 2rem;
+  width: calc(100% - 500px - 2rem);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+`;
+
+const TablesAndGraphWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+`;
+const TableWrapper = styled.div`
+  width: 100%;
+  max-height: 40vh;
+  overflow-y: auto;
+`;
+
+const GraphWrapper = styled.div`
+  width: 100%;
+  max-height: 40vh;
+  margin-top: 1rem;
+`;
 
 
 // const Table = styled.table`
@@ -323,7 +351,10 @@ const ExperimentForm = () => {
             <DownloadCSV filename={expName} data={csvData} />
           )}
         </ComponentWrapper>
+        <DataSectionWrapper>
+          <TablesAndGraphWrapper>
         {csvData &&
+        <TableWrapper>
           <div className='overflow-auto h-[300px]'>
             <Table>
               <Table.Head>
@@ -356,9 +387,11 @@ const ExperimentForm = () => {
               </Table.Body>
             </Table>
           </div>
+          </TableWrapper>
         }
         {
           results &&
+          <TableWrapper>
           <div className='overflow-auto h-[300px]'>
             <Table>
               <Table.Head>
@@ -389,8 +422,10 @@ const ExperimentForm = () => {
               </Table.Body>
             </Table>
           </div>
+          </TableWrapper>
         }
         {graphData &&
+        <GraphWrapper>
           <Plot
             data={[
               {
@@ -403,7 +438,12 @@ const ExperimentForm = () => {
               },
             ]}
             layout={{ title: 'Real-time Graph' }}
-          />}
+          />
+          </GraphWrapper>
+          }
+          
+      </TablesAndGraphWrapper>
+        </DataSectionWrapper>
       </Container>
     </>
   );
